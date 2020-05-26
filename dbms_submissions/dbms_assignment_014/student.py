@@ -111,6 +111,7 @@ class Student:
         ans=read_data(sql_query)
         return ans[0][0]
 
+
     # @classmethod
     # def aggregate(cls,aggregation,field=None,**kwargs):
     #     fields=["name","student_id","age","score"]

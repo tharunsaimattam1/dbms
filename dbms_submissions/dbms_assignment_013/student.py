@@ -297,8 +297,8 @@ class Student:
 
 def write_data(sql_query):
 	import sqlite3
-	connection = sqlite3.connect("selected_students.sqlite3")
-	#connection = sqlite3.connect("dbms/dbms_resources/students_db.sqlite3")
+	#connection = sqlite3.connect("selected_students.sqlite3")
+	connection = sqlite3.connect("dbms/dbms_resources/students_db.sqlite3")
 	crsr = connection.cursor() 
 	crsr.execute("PRAGMA foreign_keys=on;") 
 	crsr.execute(sql_query) 
@@ -307,13 +307,14 @@ def write_data(sql_query):
 
 def read_data(sql_query):
 	import sqlite3
-	connection = sqlite3.connect("selected_students.sqlite3")
-	#connection = sqlite3.connect("dbms/dbms_resources/students_db.sqlite3")
+	#connection = sqlite3.connect("selected_students.sqlite3")
+	connection = sqlite3.connect("dbms/dbms_resources/students_db.sqlite3")
 	crsr = connection.cursor()
 	crsr.execute(sql_query)
 	ans= crsr.fetchall()
 	connection.close()
 	return ans
-	
-# selected_students = Student.filter(score__gt=89)
-# print(selected_students)
+
+ages = (25, 32)
+selected_students = Student.filter(age__in=ages)
+print(selected_students)
