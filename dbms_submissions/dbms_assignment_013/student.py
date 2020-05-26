@@ -59,126 +59,242 @@ class Student:
     def delete(self):
         write_data(f"DELETE FROM Student WHERE student_id = {self.student_id}")
 
-    @staticmethod       
-    def filter(**kwargs):
-        temp_list=[]
-        final_list=[]
-        #q=None
-        iteration=1
-        for key,value in kwargs.items():
-            def key_fun(key):
-
-                switcher={
-                    'age': 'age={}'.format(value),
-                    'age__lt': 'age < {}'.format(value),
-                    'age__lte':'age <= {}'.format(value),
-                    'age__gt': 'age > {}'.format(value),
-                    'age__gte':'age >= {}'.format(value),
-                    'age__neq': 'age <> {}'.format(value),
-                    
-                    'score': 'score={}'.format(value),
-                    'score__lt': 'score < {}'.format(value),
-                    'score__lte':'score <= {}'.format(value),
-                    'score__gt': 'score > {}'.format(value),
-                    'score__gte':'score >= {}'.format(value),
-                    'score__neq': 'score <> {}'.format(value),
-                    
-                    'student_id': 'student_id={}'.format(value),
-                    'student_id__lt': 'student_id < {}'.format(value),
-                    'student_id__lte':'student_id <= {}'.format(value),
-                    'student_id__gt': 'student_id > {}'.format(value),
-                    'student_id__gte':'student_id >= {}'.format(value),
-                    'student_id__neq': 'student_id <> {}'.format(value),
-                    
-                    'name': 'name=\'{}\''.format(value),
-                    'name__neq': 'name <> \'{}\''.format(value),
-                    'name__contains':'name like \'%{}\''.format(value)
-                }
-            
-            
-                condition=switcher.get(key)
-                if(condition==None):
-                    raise InvalidField
-                query='SELECT * FROM Student WHERE {}'.format(condition)
-                return query
-            
-            if key in['age__in','score__in','student_id__in','name__in']:
-                value=tuple(value)
-                query='SELECT * FROM Student WHERE {} in {}'.format(key[0:-4],value)
-            else:
-                query=key_fun(key)
-
-            results=read_data(query)
-            for i in results:
-                if iteration==1:
-                    temp_list.append(i)
-                else:
-                    temp_list=set(temp_list)
-                    results=set(results)
-                    temp_list=temp_list.intersection(results)
-
-            iteration+=1
-        for i in temp_list:
-            student_obj=Student(i[1],i[2],i[3])
-            student_obj.student_id=i[0]
-            final_list.append(student_obj)
-        return final_list
-
-
-
-
-
-
-
-    # @staticmethod    
-    # def filter(**kwargs):
+    # @staticmethod
+    # def filter(**kwargs):   
+    #     li = []
+    #     st = []
     #     for key, value in kwargs.items():
     #         keys = key
-    #         values = value
+    #         #values = value
+    #         field = keys.split('__')
+    #         if field[0] not in ('student_id','name','age','score'):
+    #             raise InvalidField
+                
+    #         if keys in  ('student_id','name','age','score'):
+    #             if  key in ['student_id','age', 'score']:
+    #                 q = 'SELECT * FROM Student WHERE {} = {}'.format(key,value)
+    #                 query = read_data(q) 
             
-    #     x = keys.split("__")
+    #             else:
+    #                 q = 'SELECT * FROM Student WHERE {} = \'{}\' '.format(key,value)
+    #                 query = read_data(q) 
+            
+    #             st.append(query)
+            
+    #         else:
+    #             if field[1] == 'lt':
+    #                 q = 'SELECT * FROM Student WHERE {} < {}'.format(field[0],value)
+    #                 query = read_data(q) 
+            
+                
+    #             if field[1] == 'gt':
+    #                 q = 'SELECT * FROM Student WHERE {} > {}'.format(field[0],value)
+    #                 query = read_data(q) 
+            
+                        
+    #             if field[1] == 'lte':
+    #                 q = 'SELECT * FROM Student WHERE {} <= {}'.format(field[0],value)
+    #                 query = read_data(q) 
+            
+                        
+    #             if field[1] == 'gte':
+    #                 q = 'SELECT * FROM Student WHERE {} >= {}'.format(field[0],value)
+    #                 query = read_data(q) 
+            
+                        
+    #             if field[1] == 'neq':
+    #                 if  field[0] in ['student_id','age', 'score']:
+    #                     q = 'SELECT * FROM Student WHERE {} != {}'.format(field[0],value)
+    #                     query = read_data(q) 
+            
+    #                 else:
+    #                     q = 'SELECT * FROM Student WHERE {} != \'{}\' '.format(field[0],value)
+    #                     query = read_data(q) 
+            
+                   
+    #             if field[1] == 'in':
+    #                 q = 'SELECT * FROM Student WHERE {} in {}'.format(field[0],tuple(value))
+    #                 query = read_data(q) 
+            
+                        
+    #             if field[1] == 'contains':
+    #                 q = 'SELECT * FROM Student WHERE {} LIKE "%{}%" '.format(field[0],value)
+    #                 query = read_data(q) 
+            
+            
+    #             st.append(query)
+    #         final = set.intersection(*[set(i) for i in st])
+    #         final = sorted(final)
         
-    #     if x[0] not in ("student_id", "name", "age", "score"):
-    #         raise InvalidField
-            
-    #     if keys in ("student_id", "name", "age", "score"):
-    #         sql_query = read_data(f"SELECT * FROM Student WHERE {keys} = '{values}'")
-    #     else:
-                
-    #         keys = keys.split("__")
-                
-    #         if keys[1] == "lt":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} < '{values}'")
-                    
-    #         elif keys[1] == "lte":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} <= '{values}'")
-                    
-    #         elif keys[1] == "gt":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} > '{values}'")
-                    
-    #         elif keys[1] == "gte":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} >= '{values}'")
-                    
-    #         elif keys[1] == "neq":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} <> '{values}'")
-                    
-    #         elif keys[1] == "in":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} in {tuple(values)}")
-                
-    #         elif keys[1] == "contains":
-    #             sql_query = read_data(f"SELECT * FROM Student WHERE {keys[0]} like '%{values}%'")
-
-    #     if len(sql_query) == 0:
+        
+    #     if len(final) == 0:
     #         return []
+            
     #     else:
-    #         x = []
-                
-    #         for i in sql_query:
-    #             ans = Student(i[1], i[2], i[3])
-    #             ans.student_id = i[0]
-    #             x.append(ans)
-    #         return x
+    #         for i in range(len(final)):
+    #             ans = Student(final[i][1],final[i][2],final[i][3])
+    #             ans.student_id = final[i][0]
+    #             li.append(ans)
+    #         return li   
+
+    @staticmethod
+    def filter(**kwargs):
+        objects_list=[]
+        operator={'lt' : '<', 'lte' : '<=', 'gt' : '>', 'gte' : '>=', 'neq' : '!=', 'in' : 'in'}
         
+        if(len(kwargs)) >= 1:
+            conditions = []
+            for key, value in kwargs.items():
+                    
+                    keys = key
+                    keys = keys.split('__')
+                    if keys[0] not in ('name', 'age', 'score', 'student_id'):
+                            raise InvalidField 
+            
+                    if len(keys) == 1:
+                        sql_query= f" {key} = '{value}'"
+                    
+                    elif keys[1] == 'in':
+                        sql_query = f"{keys[0]} {operator[keys[1]]} {tuple(value)}"
+                    
+                    elif keys[1] == 'contains':
+                        sql_query = f"{keys[0]} like '%{value}%'"
+                    
+                    else:    
+                        sql_query = f"{keys[0]} {operator[keys[1]]} '{value}'"
+                
+                    conditions.append(sql_query)
+                    
+            mul_conditions = " and ".join(tuple(conditions))       
+            sql_query = "select * from student where " + mul_conditions
+            
+        sql_query = read_data(sql_query)
+        
+        for i in sql_query:
+            ans = Student(i[1], i[2], i[3])
+            ans.student_id = i[0]
+            objects_list.append(ans)
+        return objects_list    
+
+
+
+
+    # @staticmethod       
+    # def filter(**kwargs):
+    #     temp_list=[]
+    #     final_list=[]
+    #     iteration=1
+    #     for key,value in kwargs.items():
+    #         def key_fun(key):
+
+    #             switcher={
+    #                 'age': 'age={}'.format(value),
+    #                 'age__lt': 'age < {}'.format(value),
+    #                 'age__lte':'age <= {}'.format(value),
+    #                 'age__gt': 'age > {}'.format(value),
+    #                 'age__gte':'age >= {}'.format(value),
+    #                 'age__neq': 'age <> {}'.format(value),
+                    
+    #                 'score': 'score={}'.format(value),
+    #                 'score__lt': 'score < {}'.format(value),
+    #                 'score__lte':'score <= {}'.format(value),
+    #                 'score__gt': 'score > {}'.format(value),
+    #                 'score__gte':'score >= {}'.format(value),
+    #                 'score__neq': 'score <> {}'.format(value),
+                    
+    #                 'student_id': 'student_id={}'.format(value),
+    #                 'student_id__lt': 'student_id < {}'.format(value),
+    #                 'student_id__lte':'student_id <= {}'.format(value),
+    #                 'student_id__gt': 'student_id > {}'.format(value),
+    #                 'student_id__gte':'student_id >= {}'.format(value),
+    #                 'student_id__neq': 'student_id <> {}'.format(value),
+                    
+    #                 'name': 'name=\'{}\''.format(value),
+    #                 'name__neq': 'name <> \'{}\''.format(value),
+    #                 'name__contains':'name like \'%{}\''.format(value)
+    #             }
+            
+            
+    #             condition=switcher.get(key)
+    #             if(condition==None):
+    #                 raise InvalidField
+    #             query='SELECT * FROM Student WHERE {}'.format(condition)
+    #             return query
+            
+    #         if key in['age__in','score__in','student_id__in','name__in']:
+    #             value=tuple(value)
+    #             query='SELECT * FROM Student WHERE {} in {}'.format(key[0:-4],value)
+    #         else:
+    #             query=key_fun(key)
+
+    #         results=read_data(query)
+    #         for i in results:
+    #             if iteration==1:
+    #                 temp_list.append(i)
+    #             else:
+    #                 temp_list=set(temp_list)
+    #                 results=set(results)
+    #                 temp_list=temp_list.intersection(results)
+
+    #         iteration+=1
+    #     for i in temp_list:
+    #         student_obj=Student(i[1],i[2],i[3])
+    #         student_obj.student_id=i[0]
+    #         final_list.append(student_obj)
+    #     return final_list
+
+
+    # @classmethod    
+    # def filter(cls, **kwargs):
+    #     cls.li = []
+    #     l  = []
+    #     for key, value in kwargs.items():
+    #         cls.keys = key
+    #         cls.values = value
+    #         keys = cls.keys
+    #         x = keys.split("__")
+        
+    #         if x[0] not in ("student_id", "name", "age", "score"):
+    #             raise InvalidField
+                
+    #         if len(x)>1:
+    #             if x[1] == "lt":
+    #                 sql_query = f"{x[0]} < {cls.values}"
+                
+    #             elif x[1] == "lte":
+    #                 sql_query = f"{x[0]} <= {cls.values}"
+                        
+    #             elif x[1] == "gt":
+    #                 sql_query = f"{x[0]} > {cls.values}"
+                        
+    #             elif x[1] == "gte":
+    #                 sql_query = f"{x[0]} >= {cls.values}"
+                        
+    #             elif x[1] == "neq":
+    #                 sql_query = f"{x[0]} <> '{cls.values}'"
+                        
+    #             elif x[1] == "in":
+    #                 sql_query = f"{x[0]} in {tuple(cls.values)}"
+                    
+    #             elif x[1] == "contains":
+    #                 sql_query = f"{x[0]} like '%{cls.values}%'"
+
+    #         else:
+    #             sql_query = f'{x[0]} = "{cls.values}"'
+            
+    #         l.append(sql_query)
+            
+    #         x = ' and '.join(tuple(l))
+    #         x = 'SELECT * FROM Student WHERE '+x
+            
+    #         ans = read_data(x)
+    #         for i in ans:
+    #             an = Student(i[1], i[2], i[3])
+    #             an.student_id = i[0]
+    #             cls.li.append(an)
+    #         return cls.li
+
+
 def write_data(sql_query):
 	import sqlite3
 	connection = sqlite3.connect("selected_students.sqlite3")
