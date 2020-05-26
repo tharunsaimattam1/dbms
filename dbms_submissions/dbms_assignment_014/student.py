@@ -19,69 +19,136 @@ class Student:
         
     @staticmethod
     def filter(**kwargs):
-        fields=["name","student_id","age","score"]
-        query_att=[]
-        dic={"gt":">","lt":"<","lte":"<=","gte":">=","neq":"<>"}
-        for key,value in kwargs.items():
-            if("__" in key):
-                temp_field,expression=key.split("__")
-                if(temp_field not in fields):
-                    raise InvalidField
-                else:
-                    if(expression=="contains"):
-                        sql_query="name like '%{}%'".format(value)
-                    elif(expression=="in"):
-                        s=",".join("'"+str(i)+"'" for i in value) 
-                        sql_query="{} in ({})".format(str(temp_field),s)
-                    else:
-                        sql_query="{} {} '{}'".format(temp_field,dic[expression],value)
-            else:
-                if(key not in fields):
-                    raise InvalidField
-                else:
-                    sql_query="{}='{}'".format(key,value)
-            query_att.append(sql_query)
-        query_att_string=" and ".join(i for i in query_att)
-        return query_att_string
+        operator={'lt' : '<', 'lte' : '<=', 'gt' : '>', 'gte' : '>=', 'neq' : '!=', 'in' : 'in'}
         
+        if(len(kwargs)) >= 1:
+            conditions = []
+            for key, value in kwargs.items():
+                    
+                    keys = key
+                    keys = keys.split('__')
+                    if keys[0] not in ('name', 'age', 'score', 'student_id'):
+                            raise InvalidField 
+            
+                    if len(keys) == 1:
+                        sql_query= f" {key} = '{value}'"
+                    
+                    elif keys[1] == 'in':
+                        sql_query = f"{keys[0]} {operator[keys[1]]} {tuple(value)}"
+                    
+                    elif keys[1] == 'contains':
+                        sql_query = f"{keys[0]} like '%{value}%'"
+                    
+                    else:    
+                        sql_query = f"{keys[0]} {operator[keys[1]]} '{value}'"
+                
+                    conditions.append(sql_query)
+                    
+            mul_conditions = " and ".join(tuple(conditions))       
+            sql_query = " " + mul_conditions
+        return sql_query
     @classmethod
-    def aggregate(cls,aggregation,field=None,**kwargs):
-        fields=["name","student_id","age","score"]
-        if(len(kwargs)>=1):
-            query_att_string=cls.filter(**kwargs)
-            multiple_sql_query="select {}({}) from student where {}".format(aggregation,field,query_att_string)
-        elif(field==None):
-            multiple_sql_query="select count(*) from student"
-        else:
-            if(field not in fields):
+    def avg(cls, field, **kwargs):
+        if field not in ('name', 'age', 'score', 'student_id'):
                 raise InvalidField
-            else:
-                multiple_sql_query="select {}({}) from student".format(aggregation,field) 
-        ans=read_data(multiple_sql_query)
-        ans=ans[0][0]
-        return ans
-        
-    @classmethod
-    def avg(cls,field,**kwargs):
-        ans=cls.aggregate("avg",field,**kwargs)
-        return ans
+        if len(kwargs) >= 1:
+            sql_query = f"select avg({field}) from student where {Student.filter(**kwargs)}"
+        else:
+            sql_query = f"select avg({field}) from student"
+    
+        ans = read_data(sql_query)
+        return ans[0][0]
     
     @classmethod
-    def min(cls,field,**kwargs):
-        ans=cls.aggregate("min",field,**kwargs)
-        return ans
+    def min(cls, field, **kwargs):
+        if field not in ('name', 'age', 'score', 'student_id'):
+                raise InvalidField
+        if len(kwargs) >= 1:
+            sql_query = f"select min({field}) from student where {Student.filter(**kwargs)}"
+        else:
+            sql_query = f"select min({field}) from student"
+    
+        ans = read_data(sql_query)
+        return ans[0][0]
     
     @classmethod
     def max(cls, field, **kwargs):
-        ans=cls.aggregate("max",field,**kwargs)
-        return ans
+        if field not in ('name', 'age', 'score', 'student_id'):
+                raise InvalidField
+        if len(kwargs) >= 1:
+            sql_query = f"select max({field}) from student where {Student.filter(**kwargs)}"
+        else:
+            sql_query = f"select max({field}) from student"
     
+        ans = read_data(sql_query)
+        return ans[0][0]
+        
     @classmethod
     def sum(cls, field, **kwargs):
-        ans=cls.aggregate("sum",field,**kwargs)
-        return ans
+        if field not in ('name', 'age', 'score', 'student_id'):
+                raise InvalidField
+        if len(kwargs) >= 1:
+            sql_query = f"select sum({field}) from student where {Student.filter(**kwargs)}"
+        else:
+            sql_query = f"select sum({field}) from student"
     
+        ans = read_data(sql_query)
+        return ans[0][0]
+        
     @classmethod
-    def count(cls, field=None, **kwargs):
-        ans=cls.aggregate("count",field,**kwargs)
-        return ans
+    def count(cls, field = None, **kwargs):
+        if field == None:
+            sql_query = "select count(*) from student"    
+        
+        elif field not in ('name','age','score','student_id'):
+                raise InvalidField
+                
+        elif len(kwargs)>=1:
+            sql_query = f"select count({field}) from student where {Student.filter(**kwargs)}"
+        else:
+            sql_query = f"select count({field}) from student"        
+    
+        ans=read_data(sql_query)
+        return ans[0][0]
+
+    # @classmethod
+    # def aggregate(cls,aggregation,field=None,**kwargs):
+    #     fields=["name","student_id","age","score"]
+    #     if(len(kwargs)>=1):
+    #         query_att_string=cls.filter(**kwargs)
+    #         multiple_sql_query="select {}({}) from student where {}".format(aggregation,field,query_att_string)
+    #     elif(field==None):
+    #         multiple_sql_query="select count(*) from student"
+    #     else:
+    #         if(field not in fields):
+    #             raise InvalidField
+    #         else:
+    #             multiple_sql_query="select {}({}) from student".format(aggregation,field) 
+    #     ans=read_data(multiple_sql_query)
+    #     ans=ans[0][0]
+    #     return ans
+        
+    # @classmethod
+    # def avg(cls,field,**kwargs):
+    #     ans=cls.aggregate("avg",field,**kwargs)
+    #     return ans
+    
+    # @classmethod
+    # def min(cls,field,**kwargs):
+    #     ans=cls.aggregate("min",field,**kwargs)
+    #     return ans
+    
+    # @classmethod
+    # def max(cls, field, **kwargs):
+    #     ans=cls.aggregate("max",field,**kwargs)
+    #     return ans
+    
+    # @classmethod
+    # def sum(cls, field, **kwargs):
+    #     ans=cls.aggregate("sum",field,**kwargs)
+    #     return ans
+    
+    # @classmethod
+    # def count(cls, field=None, **kwargs):
+    #     ans=cls.aggregate("count",field,**kwargs)
+    #     return ans
